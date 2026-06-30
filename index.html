@@ -3,18 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>چت‌وارپ | ChatWarp </title>
+    <title>چت‌وارپ | ChatWarp</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    
-    <!-- Supabase JS Client v2 via CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&amp;display=swap');
         
+        :root {
+            --primary: #229ED9;
+        }
+        
         body {
             font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+        }
+        
+        .telegram-bg {
+            background-color: #0F172A;
+        }
+        
+        .chat-container {
+            background-color: #0F172A;
+            height: 100vh;
+            overflow: hidden;
         }
         
         .sidebar {
@@ -73,6 +83,20 @@
             border-radius: 3px;
         }
         
+        .telegram-blue {
+            color: #229ED9;
+        }
+        
+        .nav-active {
+            background-color: #334155;
+            border-radius: 8px;
+        }
+        
+        .message-time {
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+        
         .app-container {
             max-width: 1400px;
             margin: 0 auto;
@@ -84,6 +108,7 @@
                 max-width: 100%;
                 box-shadow: none;
             }
+            
             .sidebar {
                 width: 100% !important;
             }
@@ -100,64 +125,104 @@
             font-size: 0.65rem;
             letter-spacing: 0.5px;
         }
-        
-        .clickable-uid {
-            cursor: pointer;
-            transition: color 0.1s;
-        }
-        
-        .clickable-uid:hover {
-            color: #60a5fa;
-            text-decoration: underline;
-        }
-        
-        .supabase-badge {
-            background-color: #3ECF8E;
-            color: #1E293B;
-            font-size: 0.6rem;
-            padding: 1px 6px;
-            border-radius: 4px;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-200">
-    <!-- Auth / Username Screen -->
+    <!-- Auth Screen -->
     <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
         <div class="w-full max-w-md">
+            <!-- Logo -->
             <div class="text-center mb-8">
                 <div class="inline-flex items-center justify-center w-20 h-20 bg-[#229ED9] rounded-2xl mb-4 shadow-lg">
                     <i class="fas fa-comments text-white text-4xl"></i>
                 </div>
                 <h1 class="text-4xl font-bold tracking-tight">چت‌وارپ</h1>
-                <p class="text-slate-400 mt-1">چت انلاین با دوستات</p>
+                <p class="text-slate-400 mt-1">چت کن | بدون ترس لو رفتن اطلاعات تون</p>
             </div>
 
-            <div class="bg-slate-800 rounded-3xl p-8">
-                <div class="mb-6">
-                    <label class="block text-sm text-slate-400 mb-2">نام کاربری شما</label>
-                    <input type="text" id="username-input" 
-                           class="w-full bg-slate-900 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none text-lg"
-                           placeholder="مثال: ali_reza" maxlength="20">
-                    <p class="text-xs text-slate-500 mt-1.5">این نام در چت نمایش داده می‌شود</p>
+            <!-- Tabs -->
+            <div class="flex bg-slate-800 rounded-2xl p-1 mb-6">
+                <button onclick="showLogin()" id="login-tab"
+                        class="flex-1 py-3 rounded-xl font-medium transition-all bg-[#229ED9] text-white">
+                    ورود
+                </button>
+                <button onclick="showRegister()" id="register-tab"
+                        class="flex-1 py-3 rounded-xl font-medium transition-all text-slate-300 hover:text-white">
+                    ثبت‌نام
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">نام کاربری</label>
+                        <input type="text" id="login-username" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="مثال: ali_reza">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">رمز عبور</label>
+                        <input type="password" id="login-password" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="رمز عبور خود را وارد کنید">
+                    </div>
+                    
+                    <button onclick="loginUser()"
+                            class="w-full bg-[#229ED9] hover:bg-[#1a7cb3] transition-all py-3.5 rounded-2xl font-semibold text-lg mt-2">
+                        ورود به چت‌وارپ
+                    </button>
                 </div>
                 
-                <button onclick="startWithUsername()"
-                        class="w-full bg-[#229ED9] hover:bg-[#1a7cb3] transition-all py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-2">
-                    <i class="fas fa-rocket"></i>
-                    <span>ورود به چت‌وارپ (رایگان)</span>
-                </button>
-                
-                <div class="mt-6 text-center">
-                    <div class="inline-flex items-center gap-2 text-xs bg-slate-900 px-3 py-1 rounded-full text-emerald-400">
-                        <i class="fas fa-shield-alt"></i>
-                        <span>امن • ساده • انلاین </span>
-                    </div>
+                <div class="text-center mt-6">
+                    <p class="text-sm text-slate-400">
+                        حساب نداری؟ 
+                        <button onclick="showRegister()" class="text-[#229ED9] hover:underline font-medium">ثبت‌نام کن</button>
+                    </p>
                 </div>
             </div>
-            
-            <div class="mt-6 text-center text-xs text-slate-500">
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">نام کاربری</label>
+                        <input type="text" id="register-username" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="یک نام کاربری انتخاب کن (منحصر به فرد)">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">رمز عبور</label>
+                        <input type="password" id="register-password" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="حداقل ۴ کاراکتر">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">تکرار رمز عبور</label>
+                        <input type="password" id="register-confirm" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="رمز عبور را دوباره وارد کنید">
+                    </div>
+                    
+                    <button onclick="registerUser()"
+                            class="w-full bg-[#229ED9] hover:bg-[#1a7cb3] transition-all py-3.5 rounded-2xl font-semibold text-lg mt-2">
+                        ایجاد حساب جدید + دریافت UID
+                    </button>
+                </div>
                 
+                <div class="text-center mt-6">
+                    <p class="text-sm text-slate-400">
+                        قبلاً ثبت‌نام کردی؟ 
+                        <button onclick="showLogin()" class="text-[#229ED9] hover:underline font-medium">وارد شو</button>
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <div class="inline-flex items-center gap-2 text-xs text-slate-500 bg-slate-900 px-4 py-1.5 rounded-full">
+                    <i class="fas fa-shield-alt"></i>
+                    <span> کاملاً امن و محلی • هر کاربر UID منحصر به فرد داره</span>
+                </div>
             </div>
         </div>
     </div>
@@ -177,34 +242,35 @@
                         </div>
                         <div>
                             <div class="font-bold text-xl tracking-tight">چت‌وارپ</div>
-                            <div class="flex items-center gap-1">
-                                <span class="supabase-badge">Shetwarp</span>
-                                <span class="text-[10px] text-emerald-400">آنلاین</span>
+                            <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+                                <i class="fas fa-circle text-[8px]"></i>
+                                <span>آنلاین</span>
                             </div>
                         </div>
                     </div>
                     
-                    <button onclick="logoutUser()" 
-                            class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded-xl transition-all"
-                            title="خروج">
-                        <i class="fas fa-sign-out-alt"></i>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button onclick="logoutUser()" 
+                                class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded-xl transition-all"
+                                title="خروج">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- User Profile -->
-                <div class="px-4 py-3 border-b border-slate-700 bg-slate-800/50">
-                    <div class="flex items-center gap-3">
-                        <div id="user-avatar" 
-                             class="w-10 h-10 bg-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                <div class="px-4 py-3 border-b border-slate-700 flex items-center gap-3 bg-slate-800/50">
+                    <div id="user-avatar" 
+                         class="w-10 h-10 bg-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div id="user-name" class="font-semibold text-white truncate"></div>
+                        <div id="user-uid" 
+                             class="uid-text text-slate-400 font-mono cursor-pointer hover:text-[#229ED9] transition-colors mt-0.5"
+                             onclick="copyUID()"
+                             title="کلیک کنید تا UID کپی شود">
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <div id="user-name" class="font-semibold text-white truncate"></div>
-                            <div id="user-uid" 
-                                 class="uid-text text-slate-400 font-mono cursor-pointer hover:text-[#229ED9] transition-colors"
-                                 onclick="copyUID()"
-                                 title="کلیک برای کپی UID">
-                            </div>
-                        </div>
+                        <div class="text-xs text-emerald-400">آنلاین • آماده چت</div>
                     </div>
                 </div>
                 
@@ -220,13 +286,13 @@
                 
                 <!-- Chats List -->
                 <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chats-list">
-                    <!-- Populated dynamically -->
+                    <!-- Populated by JS -->
                 </div>
                 
-                <div class="p-3 border-t border-slate-700 bg-slate-800 text-center">
-                    <div class="text-[10px] text-slate-500">
-                        real-time با shetwarp • 
-                        <button onclick="showAllUsers()" class="text-[#229ED9] hover:underline">مشاهده کاربران</button>
+                <div class="p-3 border-t border-slate-700 bg-slate-800">
+                    <div class="text-[10px] text-center text-slate-500 flex items-center justify-center gap-1">
+                        <i class="fas fa-info-circle"></i>
+                        <span>نسخه دمو • داده‌ها در مرورگر ذخیره می‌شن</span>
                     </div>
                 </div>
             </div>
@@ -237,6 +303,7 @@
                 <!-- Chat Header -->
                 <div id="chat-header" class="chat-header px-4 py-3 flex items-center justify-between flex-shrink-0">
                     <div class="flex items-center gap-3">
+                        <!-- Mobile back button -->
                         <button onclick="showChatListOnMobile()" 
                                 class="md:hidden w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded-xl -mr-1">
                             <i class="fas fa-arrow-right"></i>
@@ -254,8 +321,8 @@
                     
                     <div class="flex items-center gap-2">
                         <div class="demo-badge px-3 py-0.5 rounded-full flex items-center gap-1 text-xs">
-                            <i class="fas fa-broadcast-tower"></i>
-                            <span>Real-time</span>
+                            <i class="fas fa-robot"></i>
+                            <span>دمو</span>
                         </div>
                         
                         <button onclick="showChatInfo()"
@@ -268,6 +335,7 @@
                 <!-- Messages Area -->
                 <div id="messages-container" 
                      class="messages-container flex-1 overflow-y-auto p-4 space-y-1 bg-[#0F172A]">
+                    <!-- Messages populated by JS -->
                 </div>
                 
                 <!-- Message Input -->
@@ -292,7 +360,7 @@
                     </div>
                     
                     <div class="text-center mt-1.5">
-                        <span class="text-[10px] text-emerald-500">پیام‌ها به صورت real-time بین همه کاربران سینک می‌شوند</span>
+                        <span class="text-[10px] text-slate-500">این یک دمو است • پیام‌ها فقط در مرورگر شما ذخیره می‌شوند</span>
                     </div>
                 </div>
             </div>
@@ -300,27 +368,18 @@
     </div>
 
     <script>
-        // ========== SUPABASE CONFIG - کاربر باید این بخش را پر کند ==========
-        const SUPABASE_URL = 'https://fsaqqsmbfmcrfavxujoa.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZzYXFxc21iZm1jcmZhdnh1am9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MzA1NTQsImV4cCI6MjA5ODQwNjU1NH0.EdvJFYbsbHdx7AZrBgry4Ks92EK3mqTCq5htvL1xaWk'; // anon public key
-        
-        // Initialize Supabase
-        let supabase;
-        
-        try {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        } catch (e) {
-            console.error('Supabase init error');
+        // Tailwind script
+        function initTailwind() {
+            document.documentElement.style.setProperty('--accent', '#229ED9');
         }
         
-        // Global variables
-        let currentUser = null;           // { id (uuid), customUID, username }
+        // Data Storage
+        let currentUser = null;
         let chats = {};
         let currentChatId = null;
-        let realtimeChannels = {};        // to unsubscribe later
         
-        // Generate custom UID (CW-XXXXXXXX)
-        function generateCustomUID() {
+        // Generate unique UID for each user
+        function generateUID() {
             const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let uid = 'CW-';
             for (let i = 0; i < 8; i++) {
@@ -329,666 +388,588 @@
             return uid;
         }
         
-        function copyUID() {
-            if (!currentUser || !currentUser.customUID) return;
-            navigator.clipboard.writeText(currentUser.customUID).then(() => {
-                const el = document.getElementById('user-uid');
-                const orig = el.innerHTML;
-                el.innerHTML = `کپی شد ✓`;
-                setTimeout(() => {
-                    if (currentUser) el.innerHTML = `UID: <span class="font-mono">${currentUser.customUID}</span>`;
-                }, 1500);
-            });
-        }
-        
-        // Start with username
-        async function startWithUsername() {
-            const usernameInput = document.getElementById('username-input').value.trim();
-            
-            if (!usernameInput || usernameInput.length < 2) {
-                alert('لطفاً یک نام کاربری حداقل ۲ کاراکتری وارد کنید');
-                return;
-            }
-            
-            if (!supabase) {
-                alert('لطفاً اول کانفیگ Supabase را در کد قرار دهید');
-                return;
-            }
-            
-            try {
-                // Sign in anonymously
-                const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-                if (authError) throw authError;
+        // Load from localStorage
+        function loadFromStorage() {
+            const savedUser = localStorage.getItem('chatwarp_currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
                 
-                const userId = authData.user.id;
-                
-                // Check if profile exists
-                const { data: profile, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .maybeSingle();
-                
-                let customUID, username;
-                
-                if (profile) {
-                    customUID = profile.custom_uid;
-                    username = profile.username;
-                } else {
-                    // Check username availability
-                    const { data: existing } = await supabase
-                        .from('profiles')
-                        .select('username')
-                        .eq('username', usernameInput)
-                        .maybeSingle();
-                    
-                    if (existing) {
-                        alert('این نام کاربری قبلاً گرفته شده. لطفاً نام دیگری انتخاب کنید.');
-                        await supabase.auth.signOut();
-                        return;
+                // Backward compatibility: assign UID if missing
+                if (currentUser && !currentUser.uid) {
+                    const users = JSON.parse(localStorage.getItem('chatwarp_users') || '{}');
+                    if (users[currentUser.username] && users[currentUser.username].uid) {
+                        currentUser.uid = users[currentUser.username].uid;
+                    } else {
+                        currentUser.uid = generateUID();
+                        if (users[currentUser.username]) {
+                            users[currentUser.username].uid = currentUser.uid;
+                            localStorage.setItem('chatwarp_users', JSON.stringify(users));
+                        }
                     }
-                    
-                    // Create new profile
-                    customUID = generateCustomUID();
-                    username = usernameInput;
-                    
-                    const { error: insertError } = await supabase
-                        .from('profiles')
-                        .insert({
-                            id: userId,
-                            custom_uid: customUID,
-                            username: username
-                        });
-                    
-                    if (insertError) throw insertError;
+                    localStorage.setItem('chatwarp_currentUser', JSON.stringify(currentUser));
                 }
-                
-                currentUser = {
-                    id: userId,
-                    customUID: customUID,
-                    username: username
-                };
-                
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-screen').classList.remove('hidden');
-                
-                await initAppAfterAuth();
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('خطا در ورود: ' + (error.message || error));
+            }
+            
+            const savedChats = localStorage.getItem('chatwarp_chats');
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+            } else {
+                // Seed initial demo data
+                seedDemoData();
             }
         }
         
-        async function initAppAfterAuth() {
-            updateUserUI();
-            
+        function saveToStorage() {
+            if (currentUser) {
+                localStorage.setItem('chatwarp_currentUser', JSON.stringify(currentUser));
+            }
+            localStorage.setItem('chatwarp_chats', JSON.stringify(chats));
+        }
+        
+        function seedDemoData() {
             chats = {
-                'public': {
-                    id: 'public',
-                    name: 'کانال عمومی چت‌وارپ',
-                    type: 'public',
+                'chatwarp': {
+                    id: 'chatwarp',
+                    name: 'کانال چت‌وارپ',
+                    type: 'channel',
                     avatarColor: '#229ED9',
                     avatarText: 'CW',
-                    status: 'همه کاربران • real-time'
+                    status: '۶ عضو • آنلاین',
+                    messages: [
+                        {
+                            id: 1,
+                            from: 'چت‌وارپ رسمی',
+                            text: 'سلام! خوش آمدید به کانال چت‌وارپ 🎉',
+                            time: '۰۹:۱۵',
+                            isSelf: false
+                        },
+                        {
+                            id: 2,
+                            from: 'چت‌وارپ رسمی',
+                            text: 'اینجا می‌تونی پیام بفرستی و با بقیه در ارتباط باشی. هر سوالی داشتی بپرس!',
+                            time: '۰۹:۱۸',
+                            isSelf: false
+                        }
+                    ]
                 },
                 'personal': {
                     id: 'personal',
-                    name: 'یادداشت‌های شخصی',
+                    name: 'پیام‌های شخصی',
                     type: 'saved',
                     avatarColor: '#64748B',
                     avatarText: '💾',
-                    status: 'فقط برای خودتان (محلی)'
+                    status: 'یادداشت‌های خصوصی • فقط برای خودت',
+                    messages: [
+                        {
+                            id: 101,
+                            from: 'چت‌وارپ',
+                            text: 'این بخش مخصوص پیام‌های شخصی و یادداشت‌های خودته. هر چی اینجا بفرستی فقط برای خودت ذخیره می‌شه و می‌مونه!',
+                            time: '۱۰:۰۰',
+                            isSelf: false
+                        }
+                    ]
                 }
             };
-            
-            renderChatList();
-            await switchChat('public');
-            setupResponsive();
-            
-            console.log('%c[ChatWarp Supabase] Real-time chat ready!', 'color:#22c55e');
+            saveToStorage();
         }
         
+        // Update user info in sidebar
         function updateUserUI() {
             if (!currentUser) return;
+            
             document.getElementById('user-name').innerText = currentUser.username;
             
             const uidEl = document.getElementById('user-uid');
-            uidEl.innerHTML = `UID: <span class="font-mono">${currentUser.customUID}</span>`;
+            if (uidEl && currentUser.uid) {
+                uidEl.innerHTML = `UID: <span class="font-mono">${currentUser.uid}</span>`;
+            }
             
             const avatar = document.getElementById('user-avatar');
             avatar.style.backgroundColor = '#10B981';
             avatar.innerHTML = `<span class="text-white font-bold">${currentUser.username[0].toUpperCase()}</span>`;
         }
         
+        // Copy UID to clipboard
+        function copyUID() {
+            if (!currentUser || !currentUser.uid) return;
+            
+            navigator.clipboard.writeText(currentUser.uid).then(() => {
+                const uidEl = document.getElementById('user-uid');
+                const originalHTML = uidEl.innerHTML;
+                uidEl.innerHTML = `کپی شد ✓`;
+                
+                setTimeout(() => {
+                    if (currentUser && currentUser.uid && uidEl) {
+                        uidEl.innerHTML = `UID: <span class="font-mono">${currentUser.uid}</span>`;
+                    }
+                }, 1600);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = currentUser.uid;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const uidEl = document.getElementById('user-uid');
+                const originalHTML = uidEl.innerHTML;
+                uidEl.innerHTML = `کپی شد ✓`;
+                setTimeout(() => {
+                    if (currentUser && currentUser.uid && uidEl) {
+                        uidEl.innerHTML = `UID: <span class="font-mono">${currentUser.uid}</span>`;
+                    }
+                }, 1600);
+            });
+        }
+        
+        // Auth Functions
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-tab').classList.add('bg-[#229ED9]', 'text-white');
+            document.getElementById('login-tab').classList.remove('text-slate-300');
+            document.getElementById('register-tab').classList.remove('bg-[#229ED9]', 'text-white');
+            document.getElementById('register-tab').classList.add('text-slate-300');
+        }
+        
+        function showRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('register-tab').classList.add('bg-[#229ED9]', 'text-white');
+            document.getElementById('register-tab').classList.remove('text-slate-300');
+            document.getElementById('login-tab').classList.remove('bg-[#229ED9]', 'text-white');
+            document.getElementById('login-tab').classList.add('text-slate-300');
+        }
+        
+        function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            if (!username || !password) {
+                alert('لطفاً نام کاربری و رمز عبور را وارد کنید');
+                return;
+            }
+            
+            if (password.length < 4) {
+                alert('رمز عبور باید حداقل ۴ کاراکتر باشد');
+                return;
+            }
+            
+            if (password !== confirm) {
+                alert('رمز عبور و تکرار آن مطابقت ندارند');
+                return;
+            }
+            
+            // Check if user exists
+            const existingUsers = JSON.parse(localStorage.getItem('chatwarp_users') || '{}');
+            if (existingUsers[username]) {
+                alert('این نام کاربری قبلاً ثبت شده است');
+                return;
+            }
+            
+            // Generate unique UID
+            const uid = generateUID();
+            
+            // Save user with UID
+            existingUsers[username] = { 
+                password: password,
+                uid: uid,
+                createdAt: new Date().toISOString()
+            };
+            localStorage.setItem('chatwarp_users', JSON.stringify(existingUsers));
+            
+            // Auto login
+            currentUser = { username: username, uid: uid };
+            saveToStorage();
+            
+            // Initialize chats if needed
+            if (Object.keys(chats).length === 0) {
+                seedDemoData();
+            }
+            
+            showAppScreen();
+        }
+        
+        function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!username || !password) {
+                alert('لطفاً نام کاربری و رمز عبور را وارد کنید');
+                return;
+            }
+            
+            const existingUsers = JSON.parse(localStorage.getItem('chatwarp_users') || '{}');
+            
+            if (!existingUsers[username] || existingUsers[username].password !== password) {
+                alert('نام کاربری یا رمز عبور اشتباه است');
+                return;
+            }
+            
+            const userData = existingUsers[username];
+            
+            // Assign UID if missing (for old accounts)
+            if (!userData.uid) {
+                userData.uid = generateUID();
+                existingUsers[username] = userData;
+                localStorage.setItem('chatwarp_users', JSON.stringify(existingUsers));
+            }
+            
+            currentUser = { 
+                username: username, 
+                uid: userData.uid 
+            };
+            saveToStorage();
+            
+            if (Object.keys(chats).length === 0) {
+                seedDemoData();
+            }
+            
+            showAppScreen();
+        }
+        
+        function logoutUser() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
+                localStorage.removeItem('chatwarp_currentUser');
+                currentUser = null;
+                currentChatId = null;
+                
+                document.getElementById('app-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                
+                // Clear forms
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('register-username').value = '';
+                document.getElementById('register-password').value = '';
+                document.getElementById('register-confirm').value = '';
+            }
+        }
+        
+        // Show main app
+        function showAppScreen() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            
+            // Set user info with UID
+            updateUserUI();
+            
+            // Render chats
+            renderChatList();
+            
+            // Open default chat
+            if (!currentChatId) {
+                switchChat('chatwarp');
+            } else {
+                switchChat(currentChatId);
+            }
+        }
+        
+        // Render chat list in sidebar
         function renderChatList(filter = '') {
             const container = document.getElementById('chats-list');
             container.innerHTML = '';
             
-            Object.keys(chats).forEach(chatId => {
+            const chatIds = Object.keys(chats);
+            
+            chatIds.forEach(chatId => {
                 const chat = chats[chatId];
-                if (filter && !chat.name.toLowerCase().includes(filter.toLowerCase())) return;
+                
+                // Filter
+                if (filter && !chat.name.toLowerCase().includes(filter.toLowerCase())) {
+                    return;
+                }
+                
+                const lastMsg = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+                const lastText = lastMsg ? lastMsg.text.substring(0, 35) + (lastMsg.text.length > 35 ? '...' : '') : 'هنوز پیامی نیست';
+                const lastTime = lastMsg ? lastMsg.time : '';
                 
                 const isActive = currentChatId === chatId;
+                
                 const div = document.createElement('div');
                 div.className = `chat-list-item flex items-center gap-3 px-3 py-3 rounded-2xl cursor-pointer mx-1 ${isActive ? 'active' : ''}`;
                 div.onclick = () => switchChat(chatId);
                 
-                let badge = '';
-                if (chat.type === 'public') badge = `<span class="text-[10px] px-1.5 py-px bg-emerald-900/60 text-emerald-400 rounded">عمومی</span>`;
-                else if (chat.type === 'private') badge = `<span class="text-[10px] px-1.5 py-px bg-purple-900/60 text-purple-400 rounded">خصوصی</span>`;
-                else badge = `<span class="text-[10px] px-1.5 py-px bg-slate-700 text-slate-400 rounded">یادداشت</span>`;
-                
                 div.innerHTML = `
-                    <div class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner" 
+                    <div class="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner" 
                          style="background-color: ${chat.avatarColor}">
                         <span>${chat.avatarText}</span>
                     </div>
+                    
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between">
                             <div class="font-semibold text-white truncate">${chat.name}</div>
+                            <div class="text-xs text-slate-400 flex-shrink-0 mr-1">${lastTime}</div>
                         </div>
+                        
                         <div class="flex items-center justify-between">
-                            <div class="text-xs text-slate-400 truncate">${chat.status}</div>
-                            ${badge}
+                            <div class="text-sm text-slate-400 truncate">${lastText}</div>
+                            
+                            ${chat.type === 'channel' ? 
+                                `<div class="text-[10px] px-1.5 py-px bg-slate-700 text-slate-400 rounded ml-1 flex-shrink-0">کانال</div>` : 
+                                `<div class="text-[10px] px-1.5 py-px bg-emerald-900/50 text-emerald-400 rounded ml-1 flex-shrink-0">خصوصی</div>`}
                         </div>
                     </div>
                 `;
+                
                 container.appendChild(div);
             });
+            
+            if (container.children.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">نتیجه‌ای یافت نشد</div>`;
+            }
         }
         
         function filterChats() {
-            renderChatList(document.getElementById('search-input').value);
+            const filter = document.getElementById('search-input').value;
+            renderChatList(filter);
         }
         
-        async function switchChat(chatId) {
-            // Unsubscribe previous realtime channel
-            if (realtimeChannels[currentChatId]) {
-                supabase.removeChannel(realtimeChannels[currentChatId]);
-                delete realtimeChannels[currentChatId];
-            }
-            
+        // Switch active chat
+        function switchChat(chatId) {
             currentChatId = chatId;
             const chat = chats[chatId];
-            if (!chat) return;
             
+            // Update header
             document.getElementById('chat-name').innerHTML = `
                 ${chat.name}
-                ${chat.type === 'public' ? '<span class="text-xs px-2 py-0.5 bg-emerald-900/60 text-emerald-400 rounded-full text-[10px] mr-2">عمومی</span>' : ''}
-                ${chat.type === 'private' ? '<span class="text-xs px-2 py-0.5 bg-purple-900/60 text-purple-400 rounded-full text-[10px] mr-2">خصوصی</span>' : ''}
+                ${chat.type === 'channel' ? '<span class="text-xs px-2 py-0.5 bg-slate-700 text-slate-300 rounded-full text-[10px] mr-2">کانال</span>' : ''}
             `;
             document.getElementById('chat-status').innerHTML = `
-                <i class="fas fa-circle text-emerald-400 text-[8px] ml-1"></i> ${chat.status}
+                <i class="fas fa-circle text-emerald-400 text-[8px] ml-1"></i> 
+                ${chat.status}
             `;
             
+            // Avatar
             const avatarEl = document.getElementById('chat-avatar');
             avatarEl.style.backgroundColor = chat.avatarColor;
             avatarEl.innerHTML = `<span class="text-white font-bold text-lg">${chat.avatarText}</span>`;
             
-            const container = document.getElementById('messages-container');
-            container.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">در حال بارگذاری پیام‌ها...</div>';
+            // Render messages
+            renderMessages();
             
+            // Re-render list to highlight active
             renderChatList(document.getElementById('search-input').value);
-            setTimeout(() => document.getElementById('message-input').focus(), 100);
             
+            // Focus input
+            setTimeout(() => {
+                document.getElementById('message-input').focus();
+            }, 100);
+            
+            // On mobile, hide sidebar
             if (window.innerWidth < 768) {
                 document.querySelector('.sidebar').style.display = 'none';
             }
-            
-            // Start realtime listener
-            if (chat.type === 'public') {
-                await startPublicMessageListener();
-            } else if (chat.type === 'private') {
-                await startPrivateMessageListener(chatId);
-            } else if (chat.type === 'saved') {
-                renderLocalPersonalMessages();
-            }
         }
         
-        // === PUBLIC CHAT (Supabase Realtime) ===
-        async function startPublicMessageListener() {
+        // Render messages in current chat
+        function renderMessages() {
             const container = document.getElementById('messages-container');
             container.innerHTML = '';
             
-            // Load existing messages first
-            const { data: messages, error } = await supabase
-                .from('public_messages')
-                .select('*')
-                .order('created_at', { ascending: true })
-                .limit(100);
+            if (!currentChatId || !chats[currentChatId]) return;
             
-            if (!error && messages) {
-                messages.forEach(msg => renderOneMessage(msg, container));
-                container.scrollTop = container.scrollHeight;
-            }
+            const chat = chats[currentChatId];
             
-            // Realtime subscription
-            const channel = supabase
-                .channel('public-messages')
-                .on('postgres_changes', 
-                    { event: 'INSERT', schema: 'public', table: 'public_messages' },
-                    (payload) => {
-                        renderOneMessage(payload.new, container);
-                        container.scrollTop = container.scrollHeight;
-                    }
-                )
-                .subscribe();
-            
-            realtimeChannels['public'] = channel;
-        }
-        
-        async function sendPublicMessage(text) {
-            if (!currentUser || !text) return;
-            
-            const { error } = await supabase
-                .from('public_messages')
-                .insert({
-                    from_username: currentUser.username,
-                    from_custom_uid: currentUser.customUID,
-                    text: text
-                });
-            
-            if (error) {
-                console.error('Send error:', error);
-                alert('خطا در ارسال پیام');
-            }
-        }
-        
-        // === PRIVATE CHAT ===
-        async function startPrivateMessageListener(chatId) {
-            const container = document.getElementById('messages-container');
-            container.innerHTML = '';
-            
-            // Load existing messages
-            const { data: messages, error } = await supabase
-                .from('private_messages')
-                .select('*')
-                .eq('chat_id', chatId)
-                .order('created_at', { ascending: true })
-                .limit(100);
-            
-            if (!error && messages) {
-                messages.forEach(msg => renderOneMessage(msg, container));
-                container.scrollTop = container.scrollHeight;
-            }
-            
-            // Realtime for this specific chat
-            const channel = supabase
-                .channel(`private-${chatId}`)
-                .on('postgres_changes', 
-                    { 
-                        event: 'INSERT', 
-                        schema: 'public', 
-                        table: 'private_messages',
-                        filter: `chat_id=eq.${chatId}`
-                    },
-                    (payload) => {
-                        renderOneMessage(payload.new, container);
-                        container.scrollTop = container.scrollHeight;
-                    }
-                )
-                .subscribe();
-            
-            realtimeChannels[chatId] = channel;
-        }
-        
-        async function sendPrivateMessage(chatId, text) {
-            if (!currentUser || !text) return;
-            
-            const { error } = await supabase
-                .from('private_messages')
-                .insert({
-                    chat_id: chatId,
-                    from_username: currentUser.username,
-                    from_custom_uid: currentUser.customUID,
-                    text: text
-                });
-            
-            if (error) {
-                console.error('Private send error:', error);
-                alert('خطا در ارسال پیام خصوصی');
-            }
-        }
-        
-        // Create/open private chat when clicking UID
-        async function startPrivateChat(targetCustomUID) {
-            if (!currentUser) return;
-            if (targetCustomUID === currentUser.customUID) {
-                alert('نمی‌توانید با خودتان چت خصوصی داشته باشید!');
-                return;
-            }
-            
-            const participants = [currentUser.customUID, targetCustomUID].sort();
-            const chatId = participants.join('_');
-            
-            if (!chats[chatId]) {
-                let targetName = 'کاربر';
-                try {
-                    const { data } = await supabase
-                        .from('profiles')
-                        .select('username')
-                        .eq('custom_uid', targetCustomUID)
-                        .maybeSingle();
-                    if (data) targetName = data.username;
-                } catch (e) {}
-                
-                chats[chatId] = {
-                    id: chatId,
-                    name: `چت خصوصی با ${targetName}`,
-                    type: 'private',
-                    avatarColor: '#7C3AED',
-                    avatarText: '🔒',
-                    status: `خصوصی • ${targetCustomUID}`,
-                    targetCustomUID: targetCustomUID
-                };
-                renderChatList();
-            }
-            
-            await switchChat(chatId);
-        }
-        
-        function renderOneMessage(msg, container) {
-            const isSelf = msg.from_custom_uid === currentUser.customUID;
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `mb-3 group`;
-            
-            let timeStr = '';
-            if (msg.created_at) {
-                timeStr = new Date(msg.created_at).toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-            } else {
-                timeStr = new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-            }
-            
-            let html = '';
-            
-            if (!isSelf) {
-                html = `
-                    <div class="flex gap-2 max-w-[82%]">
-                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-1 bg-slate-600">
-                            ${msg.from_username ? msg.from_username[0] : '?'}
-                        </div>
-                        <div class="flex flex-col">
-                            <div class="flex items-center gap-2 px-1">
-                                <span class="text-xs text-emerald-400 font-medium">${msg.from_username || 'کاربر'}</span>
-                                <span onclick="startPrivateChat('${msg.from_custom_uid}')" 
-                                      class="clickable-uid text-[10px] px-1.5 py-px bg-slate-700 hover:bg-purple-900/60 text-purple-300 rounded font-mono">
-                                    ${msg.from_custom_uid}
-                                </span>
-                            </div>
-                            <div class="message-bubble message-other">
-                                <div class="text-[15px] leading-relaxed">${msg.text}</div>
-                            </div>
-                            <div class="message-time px-1 mt-0.5 text-right text-slate-500">${timeStr}</div>
-                        </div>
-                    </div>
-                `;
-            } else {
-                html = `
-                    <div class="max-w-[75%] ml-auto flex flex-col items-end">
-                        <div class="message-bubble message-self">
-                            <div class="text-[15px] leading-relaxed">${msg.text}</div>
-                        </div>
-                        <div class="message-time px-1 mt-0.5 text-slate-400">${timeStr}</div>
-                    </div>
-                `;
-            }
-            
-            msgDiv.innerHTML = html;
-            container.appendChild(msgDiv);
-        }
-        
-        // Personal local notes (unchanged)
-        function renderLocalPersonalMessages() {
-            const container = document.getElementById('messages-container');
-            container.innerHTML = '';
-            const saved = localStorage.getItem('chatwarp_personal_messages');
-            const messages = saved ? JSON.parse(saved) : [];
-            
-            messages.forEach(msg => {
+            chat.messages.forEach(msg => {
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `mb-3 group`;
-                const isSelf = msg.isSelf;
                 
-                let html = isSelf ? `
-                    <div class="max-w-[75%] ml-auto flex flex-col items-end">
-                        <div class="message-bubble message-self">
-                            <div class="text-[15px] leading-relaxed">${msg.text}</div>
+                let html = '';
+                
+                if (!msg.isSelf) {
+                    // Other person message (left aligned)
+                    html += `
+                        <div class="flex gap-2 max-w-[80%] mr-auto">
+                            <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-1" 
+                                 style="background-color: ${chat.type === 'channel' ? '#64748B' : chat.avatarColor}">
+                                ${msg.from ? msg.from[0] : chat.avatarText}
+                            </div>
+                            
+                            <div class="flex flex-col">
+                                ${chat.type === 'channel' ? 
+                                    `<div class="text-xs text-emerald-400 font-medium mb-0.5 px-1">${msg.from}</div>` : ''}
+                                
+                                <div class="message-bubble message-other">
+                                    <div class="text-[15px] leading-relaxed">${msg.text}</div>
+                                </div>
+                                
+                                <div class="message-time px-1 mt-0.5 text-right text-slate-500">${msg.time}</div>
+                            </div>
                         </div>
-                        <div class="message-time px-1 mt-0.5 text-slate-400">${msg.time}</div>
-                    </div>
-                ` : `
-                    <div class="flex gap-2 max-w-[80%]">
-                        <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-1 bg-slate-600">💾</div>
-                        <div class="flex flex-col">
-                            <div class="message-bubble message-other">
+                    `;
+                } else {
+                    // Self message (right aligned with ml-auto)
+                    html += `
+                        <div class="max-w-[75%] ml-auto flex flex-col items-end">
+                            <div class="message-bubble message-self">
                                 <div class="text-[15px] leading-relaxed">${msg.text}</div>
                             </div>
-                            <div class="message-time px-1 mt-0.5 text-right text-slate-500">${msg.time}</div>
+                            <div class="message-time px-1 mt-0.5 text-slate-400">${msg.time}</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
+                
                 msgDiv.innerHTML = html;
                 container.appendChild(msgDiv);
             });
+            
+            // Scroll to bottom
             container.scrollTop = container.scrollHeight;
         }
         
-        async function sendMessage() {
+        // Send message
+        function sendMessage() {
             const input = document.getElementById('message-input');
             const text = input.value.trim();
+            
             if (!text || !currentChatId) return;
             
             const chat = chats[currentChatId];
-            if (!chat) return;
+            const now = new Date();
+            const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
             
-            if (chat.type === 'public') {
-                await sendPublicMessage(text);
-            } else if (chat.type === 'private') {
-                await sendPrivateMessage(currentChatId, text);
-            } else if (chat.type === 'saved') {
-                const now = new Date();
-                const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-                const saved = localStorage.getItem('chatwarp_personal_messages');
-                const messages = saved ? JSON.parse(saved) : [];
-                messages.push({ id: Date.now(), text, time, isSelf: true });
-                localStorage.setItem('chatwarp_personal_messages', JSON.stringify(messages));
-                renderLocalPersonalMessages();
-            }
+            const newMsg = {
+                id: Date.now(),
+                from: currentUser.username,
+                text: text,
+                time: time,
+                isSelf: true
+            };
             
+            chat.messages.push(newMsg);
+            saveToStorage();
+            
+            // Re-render
+            renderMessages();
+            renderChatList(document.getElementById('search-input').value);
+            
+            // Clear input
             input.value = '';
+            
+            // === Make it feel REAL: Bot replies in Personal chat ===
+            if (currentChatId === 'personal') {
+                setTimeout(() => {
+                    const personalChat = chats['personal'];
+                    if (!personalChat || currentChatId !== 'personal') return;
+                    
+                    const botReplies = [
+                        'دریافت شد! 👍',
+                        'اینجا برای یادداشت‌های خودته.',
+                        'ممنون! هر زمان خواستی بنویس.',
+                        'چت‌وارپ اینجاست که کمک کنه 😊',
+                        'عالیه! ادامه بده 💪',
+                        'پیامت ذخیره شد. هر وقت خواستی برگرد.',
+                        'یادداشت خوبی بود!'
+                    ];
+                    
+                    const randomReply = botReplies[Math.floor(Math.random() * botReplies.length)];
+                    
+                    const botMsg = {
+                        id: Date.now() + 1,
+                        from: 'دستیار چت‌وارپ',
+                        text: randomReply,
+                        time: new Date().toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' }),
+                        isSelf: false
+                    };
+                    
+                    personalChat.messages.push(botMsg);
+                    saveToStorage();
+                    
+                    // Re-render only if still viewing personal
+                    if (currentChatId === 'personal') {
+                        renderMessages();
+                        renderChatList(document.getElementById('search-input').value);
+                    }
+                }, 750);
+            }
         }
         
+        // Add emoji to input
         function addEmoji() {
             const input = document.getElementById('message-input');
-            const emojis = ['😊', '👍', '❤️', '😂', '🎉', '🔥', '👋', '✨'];
-            input.value += emojis[Math.floor(Math.random() * emojis.length)];
+            const emojis = ['😊', '👍', '❤️', '😂', '🎉', '🔥', '👋', '✨', '🙌', '💬'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            input.value += randomEmoji;
             input.focus();
         }
         
-        // Show all users
-        async function showAllUsers() {
-            try {
-                const { data: users, error } = await supabase
-                    .from('profiles')
-                    .select('username, custom_uid')
-                    .limit(40);
-                
-                if (error) throw error;
-                
-                let html = `<div class="fixed inset-0 bg-black/70 flex items-center justify-center z-50" onclick="this.remove()">
-                    <div class="bg-slate-800 rounded-3xl p-6 w-full max-w-md mx-4" onclick="event.stopImmediatePropagation()">
-                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2"><i class="fas fa-users"></i> کاربران چت‌وارپ</h3>
-                        <div class="max-h-[60vh] overflow-y-auto space-y-2">`;
-                
-                if (!users || users.length === 0) {
-                    html += `<p class="text-slate-400 text-center py-4">هنوز کاربری ثبت نشده</p>`;
-                } else {
-                    users.forEach(u => {
-                        if (u.custom_uid === currentUser.customUID) return;
-                        html += `
-                            <div onclick="startPrivateChatFromModal('${u.custom_uid}', '${u.username}', this)" 
-                                 class="flex items-center gap-3 p-3 bg-slate-900 hover:bg-slate-700 rounded-2xl cursor-pointer transition-all">
-                                <div class="w-9 h-9 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                                    ${u.username[0]}
-                                </div>
-                                <div class="flex-1">
-                                    <div class="font-medium">${u.username}</div>
-                                    <div class="text-xs font-mono text-purple-300">${u.custom_uid}</div>
-                                </div>
-                                <div class="text-xs px-2 py-1 bg-purple-900/60 text-purple-300 rounded">چت خصوصی</div>
-                            </div>`;
-                    });
-                }
-                
-                html += `</div>
-                    <button onclick="event.target.closest('.fixed').remove()" class="mt-4 w-full py-2.5 bg-slate-700 hover:bg-slate-600 rounded-2xl">بستن</button>
-                    </div></div>`;
-                
-                document.body.insertAdjacentHTML('beforeend', html);
-                
-            } catch (error) {
-                alert('خطا در دریافت لیست کاربران');
-                console.error(error);
-            }
-        }
-        
-        window.startPrivateChatFromModal = async function(targetUID, targetName, element) {
-            element.closest('.fixed').remove();
-            await startPrivateChat(targetUID);
-        };
-        
+        // Show chat info modal (simple)
         function showChatInfo() {
             if (!currentChatId) return;
             const chat = chats[currentChatId];
-            let info = '';
-            if (chat.type === 'public') {
-                info = 'این کانال عمومی real-time است.\nهمه کاربران آنلاین می‌توانند پیام بخوانند و بفرستند.\n\nUID شما: ' + currentUser.customUID;
-            } else if (chat.type === 'private') {
-                info = 'چت خصوصی real-time بین شما و ' + (chat.targetCustomUID || 'کاربر دیگر');
+            
+            let infoText = '';
+            if (chat.type === 'channel') {
+                infoText = `این یک کانال عمومی دمو است.\n\nهمه کاربران (در همین مرورگر) می‌توانند پیام بخوانند و ارسال کنند.\n\nتعداد اعضا: ۱٬۲۴۳ نفر (شبیه‌سازی شده)\n\nایجاد شده برای تست دمو چت‌وارپ\n\nتوجه: برای چت واقعی بین دستگاه‌های مختلف نیاز به بک‌اند داری (مثل Firebase).`;
             } else {
-                info = 'یادداشت‌های شخصی شما (فقط در این مرورگر ذخیره می‌شود).';
+                infoText = `چت خصوصی و امن شما.\n\nدستیار هوشمند چت‌وارپ به پیام‌هاتون پاسخ می‌ده و کمک می‌کنه.\n\nهمه چیز فقط در مرورگر شما ذخیره می‌شه (نسخه دمو).\n\nUID شما: ${currentUser.uid || '---'}\n\nاگر می‌خوای چت واقعی بین چند کاربر داشته باشی، بگو تا با Firebase برات راه بندازم!`;
             }
-            alert(info);
+            
+            alert(infoText);
         }
         
+        // Mobile: show chat list again
         function showChatListOnMobile() {
             if (window.innerWidth < 768) {
                 document.querySelector('.sidebar').style.display = 'flex';
             }
         }
         
+        // Make chat area responsive on resize
         function setupResponsive() {
             window.addEventListener('resize', () => {
                 const sidebar = document.querySelector('.sidebar');
-                if (window.innerWidth >= 768) sidebar.style.display = 'flex';
-            });
-        }
-        
-        async function logoutUser() {
-            if (!confirm('آیا می‌خواهید خارج شوید؟')) return;
-            
-            Object.values(realtimeChannels).forEach(ch => supabase.removeChannel(ch));
-            realtimeChannels = {};
-            
-            await supabase.auth.signOut();
-            location.reload();
-        }
-        
-        function setupKeyboard() {
-            document.addEventListener('keydown', function(e) {
-                if (e.key === '/' && !document.getElementById('app-screen').classList.contains('hidden')) {
-                    e.preventDefault();
-                    document.getElementById('search-input').focus();
+                if (window.innerWidth >= 768) {
+                    sidebar.style.display = 'flex';
                 }
             });
         }
         
+        // Initialize everything
         function initApp() {
-            if (SUPABASE_URL.includes('YOUR_PROJECT') || SUPABASE_ANON_KEY.includes('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9')) {
-                document.body.innerHTML = `
-                    <div class="min-h-screen flex items-center justify-center bg-slate-950 text-white p-6">
-                        <div class="max-w-lg text-center">
-                            <h1 class="text-3xl font-bold mb-4 text-red-400">⚠️ تنظیمات Supabase لازم است</h1>
-                            <p class="mb-6 text-slate-300">قبل از استفاده، پروژه Supabase بساز و کانفیگ را در کد قرار بده.</p>
-                            
-                            <div class="bg-slate-800 p-5 rounded-2xl text-left text-sm mb-6">
-                                <p class="font-bold mb-3 text-emerald-400">مراحل خیلی ساده:</p>
-                                <ol class="list-decimal list-inside space-y-2 text-slate-300">
-                                    <li>به <a href="https://supabase.com" target="_blank" class="text-[#229ED9] underline">supabase.com</a> برو و ثبت‌نام کن</li>
-                                    <li>New Project بساز</li>
-                                    <li>برو به <strong>SQL Editor</strong> و کد زیر را اجرا کن (جدول‌ها ساخته می‌شوند):</li>
-                                </ol>
-                                
-                                <pre class="bg-slate-900 p-3 mt-3 rounded text-xs overflow-auto text-emerald-300">create table if not exists profiles (
-  id uuid references auth.users on delete cascade primary key,
-  custom_uid text unique not null,
-  username text unique not null,
-  created_at timestamptz default now()
-);
-
-create table if not exists public_messages (
-  id bigint generated by default as identity primary key,
-  from_username text,
-  from_custom_uid text,
-  text text,
-  created_at timestamptz default now()
-);
-
-create table if not exists private_messages (
-  id bigint generated by default as identity primary key,
-  chat_id text not null,
-  from_username text,
-  from_custom_uid text,
-  text text,
-  created_at timestamptz default now()
-);
-
--- برای دمو (موقتا RLS را خاموش کن)
-alter table profiles disable row level security;
-alter table public_messages disable row level security;
-alter table private_messages disable row level security;</pre>
-                                
-                                <p class="mt-4">۴. برو به <strong>Project Settings → API</strong> و URL + anon key را کپی کن</p>
-                                <p class="mt-1">۵. در فایل HTML بخش SUPABASE_URL و SUPABASE_ANON_KEY را جایگزین کن</p>
-                            </div>
-                            
-                            <button onclick="location.reload()" class="px-6 py-2 bg-[#229ED9] rounded-2xl">دوباره امتحان کن</button>
-                        </div>
-                    </div>`;
-                return;
+            initTailwind();
+            loadFromStorage();
+            
+            // Check if already logged in
+            if (currentUser) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                
+                // Set user info with UID
+                updateUserUI();
+                
+                renderChatList();
+                
+                // Open last chat or default
+                if (Object.keys(chats).length > 0) {
+                    const firstChat = Object.keys(chats)[0];
+                    switchChat(currentChatId || firstChat);
+                }
+            } else {
+                // Show login by default
+                showLogin();
             }
             
-            setupKeyboard();
+            setupResponsive();
             
-            // Auto restore session
-            supabase.auth.onAuthStateChange(async (event, session) => {
-                if (session && currentUser === null) {
-                    try {
-                        const { data: profile } = await supabase
-                            .from('profiles')
-                            .select('*')
-                            .eq('id', session.user.id)
-                            .single();
-                        
-                        if (profile) {
-                            currentUser = {
-                                id: session.user.id,
-                                customUID: profile.custom_uid,
-                                username: profile.username
-                            };
-                            
-                            document.getElementById('auth-screen').classList.add('hidden');
-                            document.getElementById('app-screen').classList.remove('hidden');
-                            await initAppAfterAuth();
-                        }
-                    } catch (e) {}
+            // Easter egg: press / to focus search
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.getElementById('app-screen').classList.contains('hidden') === false) {
+                    e.preventDefault();
+                    const search = document.getElementById('search-input');
+                    search.focus();
+                    search.select();
                 }
             });
             
-            console.log('%c[ChatWarp Supabase] Ready. Set your config and run the SQL.', 'color:#64748b');
+            // Welcome console message
+            console.log('%c[ChatWarp] دمو آماده است! ساخته شده با ❤️ | UID برای هر کاربر اضافه شد + چت شخصی واقعی‌تر شد', 'color:#64748b');
         }
         
+        // Start the app
         window.onload = initApp;
     </script>
 </body>
