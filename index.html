@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>چت‌وارپ | ChatWarp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&amp;display=swap');
+        
+        :root {
+            --primary: #229ED9;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+        }
+        
+        .telegram-bg {
+            background-color: #0F172A;
+        }
+        
+        .chat-container {
+            background-color: #0F172A;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            background-color: #1E293B;
+            border-left: 1px solid #334155;
+        }
+        
+        .chat-header {
+            background-color: #1E293B;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .message-bubble {
+            max-width: 75%;
+            padding: 10px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+        
+        .message-self {
+            background-color: #229ED9;
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .message-other {
+            background-color: #334155;
+            color: #F1F5F9;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .chat-list-item {
+            transition: background-color 0.1s ease;
+        }
+        
+        .chat-list-item:hover {
+            background-color: #334155;
+        }
+        
+        .chat-list-item.active {
+            background-color: #475569;
+        }
+        
+        .messages-container {
+            scrollbar-width: thin;
+            scrollbar-color: #475569 #1E293B;
+        }
+        
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background-color: #475569;
+            border-radius: 3px;
+        }
+        
+        .telegram-blue {
+            color: #229ED9;
+        }
+        
+        .nav-active {
+            background-color: #334155;
+            border-radius: 8px;
+        }
+        
+        .message-time {
+            font-size: 0.65rem;
+            opacity: 0.7;
+        }
+        
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                max-width: 100%;
+                box-shadow: none;
+            }
+            
+            .sidebar {
+                width: 100% !important;
+            }
+        }
+        
+        .demo-badge {
+            font-size: 0.65rem;
+            padding: 1px 8px;
+            background-color: #334155;
+            color: #94A3B8;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-200">
+    <!-- Auth Screen -->
+    <div id="auth-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <!-- Logo -->
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-[#229ED9] rounded-2xl mb-4 shadow-lg">
+                    <i class="fas fa-comments text-white text-4xl"></i>
+                </div>
+                <h1 class="text-4xl font-bold tracking-tight">چت‌وارپ</h1>
+                <p class="text-slate-400 mt-1">چت کن | بدون ترس لو رفتن اطلاعات تون</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex bg-slate-800 rounded-2xl p-1 mb-6">
+                <button onclick="showLogin()" id="login-tab"
+                        class="flex-1 py-3 rounded-xl font-medium transition-all bg-[#229ED9] text-white">
+                    ورود
+                </button>
+                <button onclick="showRegister()" id="register-tab"
+                        class="flex-1 py-3 rounded-xl font-medium transition-all text-slate-300 hover:text-white">
+                    ثبت‌نام
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">نام کاربری</label>
+                        <input type="text" id="login-username" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="مثال: ali_reza">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">رمز عبور</label>
+                        <input type="password" id="login-password" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="رمز عبور خود را وارد کنید">
+                    </div>
+                    
+                    <button onclick="loginUser()"
+                            class="w-full bg-[#229ED9] hover:bg-[#1a7cb3] transition-all py-3.5 rounded-2xl font-semibold text-lg mt-2">
+                        ورود به چت‌وارپ
+                    </button>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-sm text-slate-400">
+                        حساب نداری؟ 
+                        <button onclick="showRegister()" class="text-[#229ED9] hover:underline font-medium">ثبت‌نام کن</button>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="register-form" class="hidden">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">نام کاربری</label>
+                        <input type="text" id="register-username" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="یک نام کاربری انتخاب کن">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">رمز عبور</label>
+                        <input type="password" id="register-password" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="حداقل ۴ کاراکتر">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1.5">تکرار رمز عبور</label>
+                        <input type="password" id="register-confirm" 
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl px-4 py-3.5 text-white placeholder-slate-500 focus:outline-none transition-all"
+                               placeholder="رمز عبور را دوباره وارد کنید">
+                    </div>
+                    
+                    <button onclick="registerUser()"
+                            class="w-full bg-[#229ED9] hover:bg-[#1a7cb3] transition-all py-3.5 rounded-2xl font-semibold text-lg mt-2">
+                        ایجاد حساب جدید
+                    </button>
+                </div>
+                
+                <div class="text-center mt-6">
+                    <p class="text-sm text-slate-400">
+                        قبلاً ثبت‌نام کردی؟ 
+                        <button onclick="showLogin()" class="text-[#229ED9] hover:underline font-medium">وارد شو</button>
+                    </p>
+                </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <div class="inline-flex items-center gap-2 text-xs text-slate-500 bg-slate-900 px-4 py-1.5 rounded-full">
+                    <i class="fas fa-shield-alt"></i>
+                    <span> کاملاً امن و محلی</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Screen -->
+    <div id="app-screen" class="hidden">
+        <div class="app-container flex h-screen bg-slate-900 overflow-hidden">
+            
+            <!-- Sidebar -->
+            <div class="sidebar w-80 flex-shrink-0 flex flex-col border-l border-slate-700">
+                
+                <!-- Sidebar Header -->
+                <div class="p-4 border-b border-slate-700 flex items-center justify-between bg-slate-800">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-[#229ED9] rounded-xl flex items-center justify-center">
+                            <i class="fas fa-comments text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-xl tracking-tight">چت‌وارپ</div>
+                            <div class="text-[10px] text-emerald-400 flex items-center gap-1">
+                                <i class="fas fa-circle text-[8px]"></i>
+                                <span>آنلاین</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-1">
+                        <button onclick="logoutUser()" 
+                                class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-red-400 hover:bg-slate-700 rounded-xl transition-all"
+                                title="خروج">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- User Profile -->
+                <div class="px-4 py-3 border-b border-slate-700 flex items-center gap-3 bg-slate-800/50">
+                    <div id="user-avatar" 
+                         class="w-10 h-10 bg-emerald-500 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div id="user-name" class="font-semibold text-white truncate"></div>
+                        <div class="text-xs text-emerald-400">آنلاین • آماده چت</div>
+                    </div>
+                </div>
+                
+                <!-- Search -->
+                <div class="p-3 border-b border-slate-700">
+                    <div class="relative">
+                        <input type="text" id="search-input" onkeyup="filterChats()"
+                               class="w-full bg-slate-800 border border-slate-700 focus:border-[#229ED9] rounded-2xl pl-10 pr-4 py-2.5 text-sm placeholder-slate-500 focus:outline-none"
+                               placeholder="جستجو در چت‌ها...">
+                        <i class="fas fa-search absolute right-4 top-3.5 text-slate-500"></i>
+                    </div>
+                </div>
+                
+                <!-- Chats List -->
+                <div class="flex-1 overflow-y-auto p-2 space-y-1" id="chats-list">
+                    <!-- Populated by JS -->
+                </div>
+                
+                <div class="p-3 border-t border-slate-700 bg-slate-800">
+                    <div class="text-[10px] text-center text-slate-500 flex items-center justify-center gap-1">
+                        <i class="fas fa-info-circle"></i>
+                        <span>نسخه دمو • داده‌ها در مرورگر ذخیره می‌شن</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Area -->
+            <div class="flex-1 flex flex-col min-w-0">
+                
+                <!-- Chat Header -->
+                <div id="chat-header" class="chat-header px-4 py-3 flex items-center justify-between flex-shrink-0">
+                    <div class="flex items-center gap-3">
+                        <!-- Mobile back button -->
+                        <button onclick="showChatListOnMobile()" 
+                                class="md:hidden w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded-xl -mr-1">
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        
+                        <div id="chat-avatar" 
+                             class="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold shadow-inner">
+                        </div>
+                        
+                        <div>
+                            <div id="chat-name" class="font-semibold text-lg flex items-center gap-2"></div>
+                            <div id="chat-status" class="text-xs text-emerald-400 flex items-center gap-1"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2">
+                        <div class="demo-badge px-3 py-0.5 rounded-full flex items-center gap-1 text-xs">
+                            <i class="fas fa-robot"></i>
+                            <span>دمو</span>
+                        </div>
+                        
+                        <button onclick="showChatInfo()"
+                                class="w-9 h-9 flex items-center justify-center text-slate-400 hover:text-white hover:bg-slate-700 rounded-xl transition-all">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Messages Area -->
+                <div id="messages-container" 
+                     class="messages-container flex-1 overflow-y-auto p-4 space-y-1 bg-[#0F172A]">
+                    <!-- Messages populated by JS -->
+                </div>
+                
+                <!-- Message Input -->
+                <div class="p-3 bg-slate-800 border-t border-slate-700 flex-shrink-0">
+                    <div class="flex items-end gap-2 bg-slate-900 rounded-3xl px-2 py-1.5 border border-slate-700">
+                        <button onclick="addEmoji()"
+                                class="w-10 h-10 flex-shrink-0 flex items-center justify-center text-slate-400 hover:text-[#229ED9] transition-colors">
+                            <i class="fas fa-smile text-xl"></i>
+                        </button>
+                        
+                        <div class="flex-1">
+                            <input type="text" id="message-input" 
+                                   onkeypress="if(event.key === 'Enter') sendMessage()"
+                                   class="w-full bg-transparent border-none focus:outline-none text-white placeholder-slate-500 px-2 py-2 text-[15px]"
+                                   placeholder="پیام خود را بنویسید...">
+                        </div>
+                        
+                        <button onclick="sendMessage()"
+                                class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[#229ED9] hover:bg-[#1a7cb3] transition-all text-white rounded-2xl">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mt-1.5">
+                        <span class="text-[10px] text-slate-500">این یک دمو است • پیام‌ها فقط در مرورگر شما ذخیره می‌شوند</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initTailwind() {
+            document.documentElement.style.setProperty('--accent', '#229ED9');
+        }
+        
+        // Data Storage
+        let currentUser = null;
+        let chats = {};
+        let currentChatId = null;
+        
+        // Load from localStorage
+        function loadFromStorage() {
+            const savedUser = localStorage.getItem('chatwarp_currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+            }
+            
+            const savedChats = localStorage.getItem('chatwarp_chats');
+            if (savedChats) {
+                chats = JSON.parse(savedChats);
+            } else {
+                // Seed initial demo data
+                seedDemoData();
+            }
+        }
+        
+        function saveToStorage() {
+            if (currentUser) {
+                localStorage.setItem('chatwarp_currentUser', JSON.stringify(currentUser));
+            }
+            localStorage.setItem('chatwarp_chats', JSON.stringify(chats));
+        }
+        
+        function seedDemoData() {
+            chats = {
+                'chatwarp': {
+                    id: 'chatwarp',
+                    name: 'کانال چت‌وارپ',
+                    type: 'channel',
+                    avatarColor: '#229ED9',
+                    avatarText: 'CW',
+                    status: '6 عضو • آنلاین',
+                    messages: [
+                        {
+                            id: 1,
+                            from: 'چت‌وارپ رسمی',
+                            text: 'سلام! خوش آمدید به کانال چت‌وارپ 🎉',
+                            time: '۰۹:۱۵',
+                            isSelf: false
+                        },
+                        {
+                            id: 2,
+                            from: 'چت‌وارپ رسمی',
+                            text: 'اینجا می‌تونی پیام بفرستی و با بقیه در ارتباط باشی. هر سوالی داشتی بپرس!',
+                            time: '۰۹:۱۸',
+                            isSelf: false
+                        }
+                    ]
+                },
+                'personal': {
+                    id: 'personal',
+                    name: 'پیام‌های شخصی',
+                    type: 'saved',
+                    avatarColor: '#64748B',
+                    avatarText: '💾',
+                    status: 'یادداشت‌های خصوصی • فقط برای خودت',
+                    messages: [
+                        {
+                            id: 101,
+                            from: 'چت‌وارپ',
+                            text: 'این بخش مخصوص پیام‌های شخصی و یادداشت‌های خودته. هر چی اینجا بفرستی فقط برای خودت ذخیره می‌شه و می‌مونه!',
+                            time: '۱۰:۰۰',
+                            isSelf: false
+                        }
+                    ]
+                }
+            };
+            saveToStorage();
+        }
+        
+        // Auth Functions
+        function showLogin() {
+            document.getElementById('login-form').classList.remove('hidden');
+            document.getElementById('register-form').classList.add('hidden');
+            document.getElementById('login-tab').classList.add('bg-[#229ED9]', 'text-white');
+            document.getElementById('login-tab').classList.remove('text-slate-300');
+            document.getElementById('register-tab').classList.remove('bg-[#229ED9]', 'text-white');
+            document.getElementById('register-tab').classList.add('text-slate-300');
+        }
+        
+        function showRegister() {
+            document.getElementById('login-form').classList.add('hidden');
+            document.getElementById('register-form').classList.remove('hidden');
+            document.getElementById('register-tab').classList.add('bg-[#229ED9]', 'text-white');
+            document.getElementById('register-tab').classList.remove('text-slate-300');
+            document.getElementById('login-tab').classList.remove('bg-[#229ED9]', 'text-white');
+            document.getElementById('login-tab').classList.add('text-slate-300');
+        }
+        
+        function registerUser() {
+            const username = document.getElementById('register-username').value.trim();
+            const password = document.getElementById('register-password').value;
+            const confirm = document.getElementById('register-confirm').value;
+            
+            if (!username || !password) {
+                alert('لطفاً نام کاربری و رمز عبور را وارد کنید');
+                return;
+            }
+            
+            if (password.length < 4) {
+                alert('رمز عبور باید حداقل ۴ کاراکتر باشد');
+                return;
+            }
+            
+            if (password !== confirm) {
+                alert('رمز عبور و تکرار آن مطابقت ندارند');
+                return;
+            }
+            
+            // Check if user exists
+            const existingUsers = JSON.parse(localStorage.getItem('chatwarp_users') || '{}');
+            if (existingUsers[username]) {
+                alert('این نام کاربری قبلاً ثبت شده است');
+                return;
+            }
+            
+            // Save user
+            existingUsers[username] = { password: password };
+            localStorage.setItem('chatwarp_users', JSON.stringify(existingUsers));
+            
+            // Auto login
+            currentUser = { username: username };
+            saveToStorage();
+            
+            // Initialize chats if needed
+            if (Object.keys(chats).length === 0) {
+                seedDemoData();
+            }
+            
+            showAppScreen();
+        }
+        
+        function loginUser() {
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            
+            if (!username || !password) {
+                alert('لطفاً نام کاربری و رمز عبور را وارد کنید');
+                return;
+            }
+            
+            const existingUsers = JSON.parse(localStorage.getItem('chatwarp_users') || '{}');
+            
+            if (!existingUsers[username] || existingUsers[username].password !== password) {
+                alert('نام کاربری یا رمز عبور اشتباه است');
+                return;
+            }
+            
+            currentUser = { username: username };
+            saveToStorage();
+            
+            if (Object.keys(chats).length === 0) {
+                seedDemoData();
+            }
+            
+            showAppScreen();
+        }
+        
+        function logoutUser() {
+            if (confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) {
+                localStorage.removeItem('chatwarp_currentUser');
+                currentUser = null;
+                currentChatId = null;
+                
+                document.getElementById('app-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                
+                // Clear forms
+                document.getElementById('login-username').value = '';
+                document.getElementById('login-password').value = '';
+                document.getElementById('register-username').value = '';
+                document.getElementById('register-password').value = '';
+                document.getElementById('register-confirm').value = '';
+            }
+        }
+        
+        // Show main app
+        function showAppScreen() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+            
+            // Set user info
+            document.getElementById('user-name').innerText = currentUser.username;
+            const avatar = document.getElementById('user-avatar');
+            avatar.style.backgroundColor = '#10B981';
+            avatar.innerHTML = `<span class="text-white font-bold">${currentUser.username[0].toUpperCase()}</span>`;
+            
+            // Render chats
+            renderChatList();
+            
+            // Open default chat
+            if (!currentChatId) {
+                switchChat('chatwarp');
+            } else {
+                switchChat(currentChatId);
+            }
+        }
+        
+        // Render chat list in sidebar
+        function renderChatList(filter = '') {
+            const container = document.getElementById('chats-list');
+            container.innerHTML = '';
+            
+            const chatIds = Object.keys(chats);
+            
+            chatIds.forEach(chatId => {
+                const chat = chats[chatId];
+                
+                // Filter
+                if (filter && !chat.name.toLowerCase().includes(filter.toLowerCase())) {
+                    return;
+                }
+                
+                const lastMsg = chat.messages.length > 0 ? chat.messages[chat.messages.length - 1] : null;
+                const lastText = lastMsg ? lastMsg.text.substring(0, 35) + (lastMsg.text.length > 35 ? '...' : '') : 'هنوز پیامی نیست';
+                const lastTime = lastMsg ? lastMsg.time : '';
+                
+                const isActive = currentChatId === chatId;
+                
+                const div = document.createElement('div');
+                div.className = `chat-list-item flex items-center gap-3 px-3 py-3 rounded-2xl cursor-pointer mx-1 ${isActive ? 'active' : ''}`;
+                div.onclick = () => switchChat(chatId);
+                
+                div.innerHTML = `
+                    <div class="w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold text-lg shadow-inner" 
+                         style="background-color: ${chat.avatarColor}">
+                        <span>${chat.avatarText}</span>
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <div class="font-semibold text-white truncate">${chat.name}</div>
+                            <div class="text-xs text-slate-400 flex-shrink-0 mr-1">${lastTime}</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-slate-400 truncate">${lastText}</div>
+                            
+                            ${chat.type === 'channel' ? 
+                                `<div class="text-[10px] px-1.5 py-px bg-slate-700 text-slate-400 rounded ml-1 flex-shrink-0">کانال</div>` : 
+                                `<div class="text-[10px] px-1.5 py-px bg-emerald-900/50 text-emerald-400 rounded ml-1 flex-shrink-0">خصوصی</div>`}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+            });
+            
+            if (container.children.length === 0) {
+                container.innerHTML = `<div class="text-center py-8 text-slate-400 text-sm">نتیجه‌ای یافت نشد</div>`;
+            }
+        }
+        
+        function filterChats() {
+            const filter = document.getElementById('search-input').value;
+            renderChatList(filter);
+        }
+        
+        // Switch active chat
+        function switchChat(chatId) {
+            currentChatId = chatId;
+            const chat = chats[chatId];
+            
+            // Update header
+            document.getElementById('chat-name').innerHTML = `
+                ${chat.name}
+                ${chat.type === 'channel' ? '<span class="text-xs px-2 py-0.5 bg-slate-700 text-slate-300 rounded-full text-[10px] mr-2">کانال</span>' : ''}
+            `;
+            document.getElementById('chat-status').innerHTML = `
+                <i class="fas fa-circle text-emerald-400 text-[8px] ml-1"></i> 
+                ${chat.status}
+            `;
+            
+            // Avatar
+            const avatarEl = document.getElementById('chat-avatar');
+            avatarEl.style.backgroundColor = chat.avatarColor;
+            avatarEl.innerHTML = `<span class="text-white font-bold text-lg">${chat.avatarText}</span>`;
+            
+            // Render messages
+            renderMessages();
+            
+            // Re-render list to highlight active
+            renderChatList(document.getElementById('search-input').value);
+            
+            // Focus input
+            setTimeout(() => {
+                document.getElementById('message-input').focus();
+            }, 100);
+            
+            // On mobile, hide sidebar
+            if (window.innerWidth < 768) {
+                document.querySelector('.sidebar').style.display = 'none';
+            }
+        }
+        
+        // Render messages in current chat
+        function renderMessages() {
+            const container = document.getElementById('messages-container');
+            container.innerHTML = '';
+            
+            if (!currentChatId || !chats[currentChatId]) return;
+            
+            const chat = chats[currentChatId];
+            
+            chat.messages.forEach(msg => {
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `mb-3 group`;
+                
+                let html = '';
+                
+                if (!msg.isSelf) {
+                    // Other person message (left aligned)
+                    html += `
+                        <div class="flex gap-2 max-w-[80%] mr-auto">
+                            <div class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold text-white mt-1" 
+                                 style="background-color: ${chat.type === 'channel' ? '#64748B' : chat.avatarColor}">
+                                ${msg.from ? msg.from[0] : chat.avatarText}
+                            </div>
+                            
+                            <div class="flex flex-col">
+                                ${chat.type === 'channel' ? 
+                                    `<div class="text-xs text-emerald-400 font-medium mb-0.5 px-1">${msg.from}</div>` : ''}
+                                
+                                <div class="message-bubble message-other">
+                                    <div class="text-[15px] leading-relaxed">${msg.text}</div>
+                                </div>
+                                
+                                <div class="message-time px-1 mt-0.5 text-right text-slate-500">${msg.time}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // Self message (right aligned with ml-auto)
+                    html += `
+                        <div class="max-w-[75%] ml-auto flex flex-col items-end">
+                            <div class="message-bubble message-self">
+                                <div class="text-[15px] leading-relaxed">${msg.text}</div>
+                            </div>
+                            <div class="message-time px-1 mt-0.5 text-slate-400">${msg.time}</div>
+                        </div>
+                    `;
+                }
+                
+                msgDiv.innerHTML = html;
+                container.appendChild(msgDiv);
+            });
+            
+            // Scroll to bottom
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById('message-input');
+            const text = input.value.trim();
+            
+            if (!text || !currentChatId) return;
+            
+            const chat = chats[currentChatId];
+            const now = new Date();
+            const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
+            
+            const newMsg = {
+                id: Date.now(),
+                from: currentUser.username,
+                text: text,
+                time: time,
+                isSelf: true
+            };
+            
+            chat.messages.push(newMsg);
+            saveToStorage();
+            
+            // Re-render
+            renderMessages();
+            renderChatList(document.getElementById('search-input').value);
+            
+            // Clear input
+            input.value = '';
+            
+            // (چت شخصی حالا ساده و بدون پاسخ خودکار است - فقط پیام‌های خودت ذخیره می‌شن)
+        }
+        
+        // Add emoji to input
+        function addEmoji() {
+            const input = document.getElementById('message-input');
+            const emojis = ['😊', '👍', '❤️', '😂', '🎉', '🔥', '👋', '✨'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            input.value += randomEmoji;
+            input.focus();
+        }
+        
+        // Show chat info modal (simple)
+        function showChatInfo() {
+            if (!currentChatId) return;
+            const chat = chats[currentChatId];
+            
+            let infoText = '';
+            if (chat.type === 'channel') {
+                infoText = `این یک کانال عمومی است. همه کاربران می‌توانند پیام بخوانند و ارسال کنند.\n\nتعداد اعضا: ۱٬۲۴۳ نفر\n\nایجاد شده برای تست دمو چت‌وارپ`;
+            } else {
+                infoText = `چت خصوصی با دستیار هوشمند چت‌وارپ.\n\nدستیار همیشه آنلاین است و به پیام‌های شما پاسخ می‌دهد.\n\nاین بخش برای تست قابلیت چت شخصی طراحی شده.`;
+            }
+            
+            alert(infoText);
+        }
+        
+        // Mobile: show chat list again
+        function showChatListOnMobile() {
+            if (window.innerWidth < 768) {
+                document.querySelector('.sidebar').style.display = 'flex';
+                // Hide chat area on very small screens if needed, but flex handles it
+            }
+        }
+        
+        // Make chat area responsive on resize
+        function setupResponsive() {
+            window.addEventListener('resize', () => {
+                const sidebar = document.querySelector('.sidebar');
+                if (window.innerWidth >= 768) {
+                    sidebar.style.display = 'flex';
+                }
+            });
+            
+            // Initial mobile check
+            const sidebar = document.querySelector('.sidebar');
+            if (window.innerWidth < 768 && currentChatId) {
+                // Keep sidebar visible initially, user can tap back
+            }
+        }
+        
+        // Initialize everything
+        function initApp() {
+            initTailwind();
+            loadFromStorage();
+            
+            // Check if already logged in
+            if (currentUser) {
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-screen').classList.remove('hidden');
+                
+                // Set user info
+                document.getElementById('user-name').innerText = currentUser.username;
+                const avatar = document.getElementById('user-avatar');
+                avatar.style.backgroundColor = '#10B981';
+                avatar.innerHTML = `<span class="text-white font-bold">${currentUser.username[0].toUpperCase()}</span>`;
+                
+                renderChatList();
+                
+                // Open last chat or default
+                if (Object.keys(chats).length > 0) {
+                    const firstChat = Object.keys(chats)[0];
+                    switchChat(currentChatId || firstChat);
+                }
+            } else {
+                // Show login by default
+                showLogin();
+            }
+            
+            setupResponsive();
+            
+            // Easter egg: press / to focus search
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && document.getElementById('app-screen').classList.contains('hidden') === false) {
+                    e.preventDefault();
+                    const search = document.getElementById('search-input');
+                    search.focus();
+                    search.select();
+                }
+            });
+            
+            // Welcome console message
+            console.log('%c[ChatWarp] دمو آماده است! ساخته شده با ❤️ برای کاربر', 'color:#64748b');
+        }
+        
+        // Start the app
+        window.onload = initApp;
+    </script>
+</body>
+</html>
